@@ -14,6 +14,7 @@ import 'package:flutter_application/constants/token_handler.dart';
 import 'package:flutter_application/services/fetch_email.dart';
 import 'package:flutter_application/services/role_check.dart';
 import 'package:flutter_application/shared/custom_appbar.dart';
+import 'package:flutter_application/shared/map.dart';
 import 'package:flutter_application/shared/submit_button.dart';
 
 class AdminMainPage extends StatefulWidget {
@@ -139,6 +140,20 @@ class _AdminMainPageState extends State<AdminMainPage> {
             MaterialPageRoute(
               builder: (context) => ChangeAdminPassword(email: email),
             ),
+          );
+        },
+      },
+      {
+        'title': 'Карта',
+        'backgroundColor': AppColors.adminPage,
+        'textColor': Colors.white,
+        'onPressed': () {
+          TokenHandler().clearToken();
+
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const MapScreen()),
+            (Route<dynamic> route) => false,
           );
         },
       },

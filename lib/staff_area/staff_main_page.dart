@@ -9,6 +9,7 @@ import 'package:flutter_application/services/fetch_email.dart';
 import 'package:flutter_application/services/role_check.dart';
 import 'package:flutter_application/shared/custom_appbar.dart';
 import 'package:flutter_application/shared/error_dialog.dart';
+import 'package:flutter_application/shared/map.dart';
 import 'package:flutter_application/shared/submit_button.dart';
 import 'package:flutter_application/shared/user_details.dart';
 import 'package:flutter_application/staff_area/add_staff_task.dart';
@@ -170,6 +171,20 @@ class _UsersMainPageState extends State<StaffMainPage> {
             MaterialPageRoute(
               builder: (context) => ChangeUserPassword(email: email),
             ),
+          );
+        },
+      },
+      {
+        'title': 'Карта',
+        'backgroundColor': AppColors.userPage,
+        'textColor': Colors.white,
+        'onPressed': () {
+          TokenHandler().clearToken();
+
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const MapScreen()),
+            (Route<dynamic> route) => false,
           );
         },
       },
