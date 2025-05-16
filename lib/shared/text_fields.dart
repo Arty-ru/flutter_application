@@ -110,6 +110,30 @@ TextFormField phoneNumberField({
   );
 }
 
+TextFormField textField({
+  required TextEditingController textController,
+  String? labelText,
+}) {
+  return TextFormField(
+    controller: textController,
+    decoration: InputDecoration(
+      labelText: labelText ?? "Адрес",
+      floatingLabelStyle: const TextStyle(color: Colors.green),
+      border: BorderStyles.border,
+      focusedBorder: BorderStyles.focusedBorder,
+      errorBorder: BorderStyles.errorBorder,
+      focusedErrorBorder: BorderStyles.focusedErrorBorder,
+    ),
+    keyboardType: TextInputType.text,
+    validator: (value) {
+      if (value == null || value.isEmpty) {
+        return 'Пожалуйста, введите Ваш адрес.';
+      }
+      return null;
+    },
+  );
+}
+
 TextField userDetailsTextField({required String label, required String value}) {
   return TextField(
     controller: TextEditingController(text: value),

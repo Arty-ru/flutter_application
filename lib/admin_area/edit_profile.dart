@@ -24,6 +24,7 @@ class _EditProfileState extends State<EditProfile> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
@@ -31,6 +32,7 @@ class _EditProfileState extends State<EditProfile> {
     _nameController.dispose();
     _emailController.dispose();
     _phoneNumberController.dispose();
+    _addressController.dispose();
     super.dispose();
   }
 
@@ -46,6 +48,7 @@ class _EditProfileState extends State<EditProfile> {
       Uri.parse(ApiEndpoints.adminInfoGetAndUpdate),
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
+        // ignore: await_only_futures
         'Authorization': 'Bearer ${await TokenHandler().getToken()}',
       },
       body: json.encode(email),
@@ -57,6 +60,7 @@ class _EditProfileState extends State<EditProfile> {
         _nameController.text = user.name;
         _emailController.text = user.email;
         _phoneNumberController.text = user.phone ?? "";
+        _addressController.text = user.address ?? "";
       });
     } else {
       final error =
@@ -87,6 +91,7 @@ class _EditProfileState extends State<EditProfile> {
           "name": _nameController.text,
           "email": _emailController.text,
           "phone": _phoneNumberController.text,
+          "address": _addressController.text,
         }),
       );
 
@@ -94,7 +99,9 @@ class _EditProfileState extends State<EditProfile> {
         if (!mounted) return;
         Navigator.of(context).pop();
       } else {
+        // ignore: prefer_typing_uninitialized_variables
         var errorBody;
+        // ignore: prefer_typing_uninitialized_variables
         var error;
         if (result.body.isNotEmpty) {
           errorBody = jsonDecode(result.body);
@@ -152,6 +159,8 @@ class _EditProfileState extends State<EditProfile> {
                   phoneNumberField(
                     phoneNumberController: _phoneNumberController,
                   ),
+                  const SizedBox(height: 20),
+                  textField(textController: _addressController),
                   const SizedBox(height: 20),
                   submitButton(
                     context: context,

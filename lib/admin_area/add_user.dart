@@ -24,6 +24,7 @@ class _AddUserState extends State<AddUser> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
@@ -39,6 +40,7 @@ class _AddUserState extends State<AddUser> {
     _emailController.dispose();
     _passwordController.dispose();
     _phoneNumberController.dispose();
+    _addressController.dispose();
   }
 
   Future<void> submitForm() async {
@@ -48,6 +50,7 @@ class _AddUserState extends State<AddUser> {
         email: _emailController.text,
         password: _passwordController.text,
         phone: _phoneNumberController.text,
+        address: _addressController.text,
       );
 
       var result = await http.post(
@@ -63,6 +66,7 @@ class _AddUserState extends State<AddUser> {
         if (!mounted) return;
         Navigator.of(context).pop();
       } else {
+        // ignore: prefer_typing_uninitialized_variables
         var errorBody;
         if (result.body.isNotEmpty) {
           errorBody = jsonDecode(result.body);
@@ -115,6 +119,8 @@ class _AddUserState extends State<AddUser> {
                   phoneNumberField(
                     phoneNumberController: _phoneNumberController,
                   ),
+                  const SizedBox(height: 20),
+                  textField(textController: _addressController),
                   const SizedBox(height: 20),
                   submitButton(
                     context: context,

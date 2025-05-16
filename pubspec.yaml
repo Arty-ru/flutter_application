@@ -11,6 +11,8 @@ dependencies:
     sdk: flutter
   http: 
   jwt_decoder: 
+  yandex_maps_mapkit:
+    version: ^4.15.0-beta
   
 
 dev_dependencies:

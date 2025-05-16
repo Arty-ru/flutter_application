@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application/staff_area/staff_main_page.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:flutter_application/accounts/register.dart';
 import 'package:flutter_application/admin_area/admin_main_page.dart';
@@ -70,6 +71,12 @@ class _LoginPageState extends State<LoginPage> {
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => const UsersMainPage()),
+            (Route<dynamic> route) => false,
+          );
+        } else if (role == "Staff") {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const StaffMainPage()),
             (Route<dynamic> route) => false,
           );
         } else {

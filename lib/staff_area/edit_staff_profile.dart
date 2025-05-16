@@ -12,15 +12,15 @@ import 'package:flutter_application/shared/error_dialog.dart';
 import 'package:flutter_application/shared/submit_button.dart';
 import 'package:flutter_application/shared/text_fields.dart';
 
-class EditUserProfile extends StatefulWidget {
+class EditStaffProfile extends StatefulWidget {
   final String email;
-  const EditUserProfile({super.key, required this.email});
+  const EditStaffProfile({super.key, required this.email});
 
   @override
-  State<EditUserProfile> createState() => _EditUserProfileState();
+  State<EditStaffProfile> createState() => _EditUserProfileState();
 }
 
-class _EditUserProfileState extends State<EditUserProfile> {
+class _EditUserProfileState extends State<EditStaffProfile> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
@@ -39,13 +39,13 @@ class _EditUserProfileState extends State<EditUserProfile> {
   @override
   void initState() {
     super.initState();
-    RoleCheck().checkUserRole(context);
+    RoleCheck().checkStaffRole(context);
     getAdminInfo(widget.email);
   }
 
   Future<void> getAdminInfo(String email) async {
     var result = await http.post(
-      Uri.parse(ApiEndpoints.userInfoRead),
+      Uri.parse(ApiEndpoints.staffInfoRead),
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer ${await TokenHandler().getToken()}',
@@ -60,11 +60,11 @@ class _EditUserProfileState extends State<EditUserProfile> {
         _nameController.text = user.name;
         _emailController.text = user.email;
         _phoneNumberController.text = user.phone ?? "88005553535";
-        _addressController.text = user.address!;
+        _addressController.text = user.address ?? "Address not provided";
       });
     } else {
       var errorBody = jsonDecode(result.body);
-      final error = errorBody['message'] ?? "An error occurred.";
+      final error = errorBody['message'] ?? "Возникла ошибка.";
 
       if (!mounted) return;
 
@@ -79,17 +79,8 @@ class _EditUserProfileState extends State<EditUserProfile> {
 
   Future<void> submitForm() async {
     if (_formKey.currentState!.validate()) {
-      final user = UserAlterModel(
-        id: widget.email,
-        name: _nameController.text,
-        email: _emailController.text,
-        phone: _phoneNumberController.text,
-        address: _addressController.text,
-        role: <String>[],
-      );
-
       var result = await http.put(
-        Uri.parse(ApiEndpoints.userInfoUpdate),
+        Uri.parse(ApiEndpoints.staffInfoUpdate),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer ${TokenHandler().getToken()}',
@@ -97,8 +88,8 @@ class _EditUserProfileState extends State<EditUserProfile> {
         body: jsonEncode({
           "name": _nameController.text,
           "email": _emailController.text,
-          "phoneNumber": _phoneNumberController.text,
-          "address": _addressController.text,
+          "phoneNumber": _phoneNumberController.text ?? "88005553535",
+          "address": _addressController.text ?? "Address not provided",
         }),
       );
 
@@ -145,11 +136,6 @@ class _EditUserProfileState extends State<EditUserProfile> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
-                  userNameTextField(
-                    nameController: _nameController,
-                    readOnly: true,
-                  ),
-                  const SizedBox(height: 20),
                   emailTextField(
                     emailController: _emailController,
                     readOnly: true,
@@ -159,13 +145,11 @@ class _EditUserProfileState extends State<EditUserProfile> {
                     phoneNumberController: _phoneNumberController,
                   ),
                   const SizedBox(height: 20),
-                  textField(textController: _addressController),
-                  const SizedBox(height: 20),
                   submitButton(
                     context: context,
                     backgroundColor: AppColors.userPage,
                     textColor: Colors.white,
-                    title: "Принять изменения",
+                    title: "Update",
                     method: submitForm,
                   ),
                 ],

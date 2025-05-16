@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/accounts/login.dart';
 import 'package:flutter_application/admin_area/add_role.dart';
+import 'package:flutter_application/admin_area/add_task.dart';
 import 'package:flutter_application/admin_area/add_user.dart';
 import 'package:flutter_application/admin_area/change_admin_password.dart';
 import 'package:flutter_application/admin_area/edit_profile.dart';
 import 'package:flutter_application/admin_area/get_roles.dart';
+import 'package:flutter_application/admin_area/get_tasks.dart';
 import 'package:flutter_application/admin_area/get_users.dart';
 import 'package:flutter_application/admin_area/select_user.dart';
 import 'package:flutter_application/constants/app_colors.dart';
@@ -76,6 +78,32 @@ class _AdminMainPageState extends State<AdminMainPage> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const AddRole()),
+          );
+        },
+      },
+      {
+        'title': 'Просмотреть заявки',
+        'backgroundColor': AppColors.adminPage,
+        'textColor': Colors.white,
+        'onPressed': () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const GetTasks()),
+          );
+        },
+      },
+      {
+        'title': 'Добавить заявку',
+        'backgroundColor': AppColors.adminPage,
+        'textColor': Colors.white,
+        'onPressed': () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) =>
+                      AddTask(email: fetchEmailFromToken(context: context)),
+            ),
           );
         },
       },

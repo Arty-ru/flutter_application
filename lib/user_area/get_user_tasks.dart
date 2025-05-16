@@ -1,36 +1,39 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_application/constants/api_endpoints.dart';
 import 'package:flutter_application/constants/app_colors.dart';
 import 'package:flutter_application/constants/token_handler.dart';
-import 'package:flutter_application/models/role_model.dart';
+import 'package:flutter_application/models/task_view_model.dart';
 import 'package:flutter_application/services/role_check.dart';
 import 'package:flutter_application/shared/confirmation_dialog.dart';
 import 'package:flutter_application/shared/custom_appbar.dart';
+import 'package:flutter_application/shared/task_details.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_application/shared/error_dialog.dart';
 
-class GetRoles extends StatefulWidget {
-  const GetRoles({super.key});
+class GetUserTasks extends StatefulWidget {
+  final String email;
+  const GetUserTasks({super.key, required this.email});
 
   @override
-  State<GetRoles> createState() => _GetRolesState();
+  State<GetUserTasks> createState() => _GetTasksState();
 }
 
-class _GetRolesState extends State<GetRoles> {
-  List<RoleModel> roles = [];
+class _GetTasksState extends State<GetUserTasks> {
+  List<TaskViewModel> tasks = [];
 
   @override
   void initState() {
     super.initState();
-    RoleCheck().checkAdminRole(context);
-    fetchRoles();
+    RoleCheck().checkUserRole(context);
+    fetchTasks(widget.email);
   }
 
-  Future<void> fetchRoles() async {
+  Future<void> fetchTasks(String email) async {
+    final uri = Uri.parse('${ApiEndpoints.getUserTasks}?email=$email');
+
     final result = await http.get(
-      Uri.parse(ApiEndpoints.adminRolesCrud),
+      uri,
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer ${TokenHandler().getToken()}',
@@ -40,18 +43,16 @@ class _GetRolesState extends State<GetRoles> {
     if (result.statusCode >= 200 && result.statusCode <= 299) {
       final List<dynamic> jsonData = json.decode(result.body);
       setState(() {
-        roles = jsonData.map((role) => RoleModel.fromJson(role)).toList();
+        tasks = jsonData.map((task) => TaskViewModel.fromJson(task)).toList();
       });
     } else {
-      // ignore: prefer_typing_uninitialized_variables
       var errorBody;
-      // ignore: prefer_typing_uninitialized_variables
       var error;
       if (result.body.isNotEmpty) {
         errorBody = jsonDecode(result.body);
         error = errorBody['message'] ?? "Произошла ошибка. ";
       } else {
-        error = "Ролей не найдено.";
+        error = "Заявок не найдено.";
       }
 
       if (!mounted) return;
@@ -65,9 +66,9 @@ class _GetRolesState extends State<GetRoles> {
     }
   }
 
-  Future<void> deleteRole({required String id}) async {
+  Future<void> deleteTask({required int? id}) async {
     final result = await http.delete(
-      Uri.parse(ApiEndpoints.adminRolesCrud),
+      Uri.parse(ApiEndpoints.deleteTask),
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer ${TokenHandler().getToken()}',
@@ -76,7 +77,7 @@ class _GetRolesState extends State<GetRoles> {
     );
 
     if (result.statusCode >= 200 && result.statusCode <= 299) {
-      fetchRoles();
+      fetchTasks(widget.email);
     } else {
       var errorBody = jsonDecode(result.body);
       final error = errorBody['message'] ?? "Произошла ошибка.";
@@ -95,35 +96,40 @@ class _GetRolesState extends State<GetRoles> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppbar(
-        title: "Новая роль",
-        color: AppColors.adminPage,
-      ),
+      appBar: const CustomAppbar(title: "Заявки", color: AppColors.userPage),
       body: ListView.builder(
-        itemCount: roles.length,
+        itemCount: tasks.length,
         shrinkWrap: true,
         itemBuilder: (BuildContext context, int index) {
-          final role = roles[index];
+          final task = tasks[index];
           return ListTile(
-            title: Text(role.name),
-            leading: CircleAvatar(child: Text(role.name[0].toUpperCase())),
+            title: Text(task.title),
+            subtitle: Text(task.description),
+            leading: CircleAvatar(child: Text(task.id.toString())),
             trailing: IconButton(
               onPressed: () async {
                 bool? confirmed = await showConfirmationDialog(
                   context: context,
                   title: "Принять",
-                  content: "Вы уверены, что хотите удалить эту роль?",
-                  color: AppColors.adminPage,
+                  content: "Вы уверены, что хотите удалить эту заявку?",
+                  color: AppColors.userPage,
                 );
 
                 if (confirmed) {
-                  deleteRole(id: role.id);
+                  deleteTask(id: task.id);
                 } else {
                   return;
                 }
               },
               icon: const Icon(Icons.delete),
             ),
+            onTap: () {
+              taskDetails(
+                context: context,
+                task: task,
+                color: AppColors.userPage,
+              );
+            },
           );
         },
       ),

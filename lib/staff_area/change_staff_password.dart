@@ -1,113 +1,77 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_application/accounts/login.dart';
 import 'package:flutter_application/constants/api_endpoints.dart';
 import 'package:flutter_application/constants/app_colors.dart';
 import 'package:flutter_application/constants/token_handler.dart';
-import 'package:flutter_application/models/user_alter_model.dart';
+import 'package:flutter_application/models/change_password_model.dart';
 import 'package:flutter_application/services/role_check.dart';
 import 'package:flutter_application/shared/custom_appbar.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter_application/shared/error_dialog.dart';
 import 'package:flutter_application/shared/submit_button.dart';
 import 'package:flutter_application/shared/text_fields.dart';
+import 'package:http/http.dart' as http;
 
-class EditUserProfile extends StatefulWidget {
+class ChangeStaffPassword extends StatefulWidget {
   final String email;
-  const EditUserProfile({super.key, required this.email});
+  const ChangeStaffPassword({super.key, required this.email});
 
   @override
-  State<EditUserProfile> createState() => _EditUserProfileState();
+  State<ChangeStaffPassword> createState() => _ChangeUserPasswordState();
 }
 
-class _EditUserProfileState extends State<EditUserProfile> {
-  final TextEditingController _nameController = TextEditingController();
+class _ChangeUserPasswordState extends State<ChangeStaffPassword> {
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _phoneNumberController = TextEditingController();
-  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _currentPasswordController =
+      TextEditingController();
+  final TextEditingController _newPasswordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
-    _nameController.dispose();
     _emailController.dispose();
-    _phoneNumberController.dispose();
-    _addressController.dispose();
+    _currentPasswordController.dispose();
+    _newPasswordController.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
-    RoleCheck().checkUserRole(context);
-    getAdminInfo(widget.email);
-  }
-
-  Future<void> getAdminInfo(String email) async {
-    var result = await http.post(
-      Uri.parse(ApiEndpoints.userInfoRead),
-      headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer ${await TokenHandler().getToken()}',
-      },
-      body: json.encode(email),
-    );
-    if (result.statusCode >= 200 && result.statusCode <= 299) {
-      final jsonData = json.decode(result.body);
-      final user = UserAlterModel.fromJson(jsonData);
-
-      setState(() {
-        _nameController.text = user.name;
-        _emailController.text = user.email;
-        _phoneNumberController.text = user.phone ?? "88005553535";
-        _addressController.text = user.address!;
-      });
-    } else {
-      var errorBody = jsonDecode(result.body);
-      final error = errorBody['message'] ?? "An error occurred.";
-
-      if (!mounted) return;
-
-      errorDialog(
-        context: context,
-        statusCode: result.statusCode,
-        description: error,
-        color: Colors.green,
-      );
-    }
+    RoleCheck().checkStaffRole(context);
+    _emailController.text = widget.email;
   }
 
   Future<void> submitForm() async {
     if (_formKey.currentState!.validate()) {
-      final user = UserAlterModel(
-        id: widget.email,
-        name: _nameController.text,
+      final changePassword = ChangePasswordModel(
         email: _emailController.text,
-        phone: _phoneNumberController.text,
-        address: _addressController.text,
-        role: <String>[],
+        currentPassword: _currentPasswordController.text,
+        newPassword: _newPasswordController.text,
       );
 
       var result = await http.put(
-        Uri.parse(ApiEndpoints.userInfoUpdate),
+        Uri.parse(ApiEndpoints.userChangePassword),
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer ${TokenHandler().getToken()}',
         },
-        body: jsonEncode({
-          "name": _nameController.text,
-          "email": _emailController.text,
-          "phoneNumber": _phoneNumberController.text,
-          "address": _addressController.text,
-        }),
+        body: json.encode(changePassword.toJson()),
       );
 
       if (result.statusCode >= 200 && result.statusCode <= 299) {
+        TokenHandler().clearToken();
+
         if (!mounted) return;
-        Navigator.of(context).pop();
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+          (Route<dynamic> route) => false,
+        );
       } else {
         var errorBody = jsonDecode(result.body);
-        final error = errorBody['message'] ?? "Возникла ошибка.";
+        final error = errorBody['message'] ?? "Произошла ошибка.";
 
         if (!mounted) return;
 
@@ -125,14 +89,15 @@ class _EditUserProfileState extends State<EditUserProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CustomAppbar(
-        title: "Edit Profile",
+        title: "Изменить пароль",
         color: AppColors.userPage,
       ),
       body: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(height: 20),
           const Text(
-            "User Details",
+            "Введите данные пользователя",
             style: TextStyle(
               color: Color.fromRGBO(56, 56, 56, .9),
               fontWeight: FontWeight.bold,
@@ -145,27 +110,26 @@ class _EditUserProfileState extends State<EditUserProfile> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
-                  userNameTextField(
-                    nameController: _nameController,
-                    readOnly: true,
-                  ),
-                  const SizedBox(height: 20),
                   emailTextField(
                     emailController: _emailController,
                     readOnly: true,
                   ),
                   const SizedBox(height: 20),
-                  phoneNumberField(
-                    phoneNumberController: _phoneNumberController,
+                  passwordTextField(
+                    passwordController: _currentPasswordController,
+                    label: "Текущий пароль",
                   ),
                   const SizedBox(height: 20),
-                  textField(textController: _addressController),
+                  passwordTextField(
+                    passwordController: _newPasswordController,
+                    label: "Новый пароль",
+                  ),
                   const SizedBox(height: 20),
                   submitButton(
                     context: context,
                     backgroundColor: AppColors.userPage,
                     textColor: Colors.white,
-                    title: "Принять изменения",
+                    title: "Принять",
                     method: submitForm,
                   ),
                 ],

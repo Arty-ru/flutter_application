@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_application/accounts/login.dart';
 import 'package:flutter_application/constants/api_endpoints.dart';
@@ -8,43 +7,43 @@ import 'package:flutter_application/constants/token_handler.dart';
 import 'package:flutter_application/models/user_model.dart';
 import 'package:flutter_application/services/fetch_email.dart';
 import 'package:flutter_application/services/role_check.dart';
-import 'package:flutter_application/shared/confirmation_dialog.dart';
 import 'package:flutter_application/shared/custom_appbar.dart';
 import 'package:flutter_application/shared/error_dialog.dart';
 import 'package:flutter_application/shared/submit_button.dart';
 import 'package:flutter_application/shared/user_details.dart';
-import 'package:flutter_application/user_area/add_user_task.dart';
+import 'package:flutter_application/staff_area/add_staff_task.dart';
+import 'package:flutter_application/staff_area/edit_staff_profile.dart';
+import 'package:flutter_application/staff_area/get_tasks.dart';
 import 'package:flutter_application/user_area/change_user_password.dart';
 import 'package:flutter_application/user_area/edit_user_profile.dart';
-import 'package:flutter_application/user_area/get_user_tasks.dart';
 import 'package:http/http.dart' as http;
 
-class UsersMainPage extends StatefulWidget {
-  const UsersMainPage({super.key});
+class StaffMainPage extends StatefulWidget {
+  const StaffMainPage({super.key});
 
   @override
-  State<UsersMainPage> createState() => _UsersMainPageState();
+  State<StaffMainPage> createState() => _UsersMainPageState();
 }
 
-class _UsersMainPageState extends State<UsersMainPage> {
+class _UsersMainPageState extends State<StaffMainPage> {
   List<Map<String, dynamic>> buttons = [];
   late String email;
 
   @override
   void initState() {
     super.initState();
-    RoleCheck().checkUserRole(context);
+    RoleCheck().checkStaffRole(context);
     email = fetchEmailFromToken(context: context);
     addButtonData(context);
   }
 
-  Future<void> getUserInfo({required String email}) async {
+  Future<void> getStaffInfo({required String email}) async {
     if (email.isEmpty) {
       return;
     }
 
     final result = await http.post(
-      Uri.parse(ApiEndpoints.userInfoRead),
+      Uri.parse(ApiEndpoints.staffInfoRead),
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer ${await TokenHandler().getToken()}',
@@ -118,7 +117,7 @@ class _UsersMainPageState extends State<UsersMainPage> {
         'backgroundColor': AppColors.userPage,
         'textColor': Colors.white,
         'onPressed': () {
-          getUserInfo(email: email);
+          getStaffInfo(email: email);
         },
       },
       {
@@ -129,7 +128,7 @@ class _UsersMainPageState extends State<UsersMainPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => EditUserProfile(email: email),
+              builder: (context) => EditStaffProfile(email: email),
             ),
           );
         },
@@ -141,7 +140,7 @@ class _UsersMainPageState extends State<UsersMainPage> {
         'onPressed': () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => GetUserTasks(email: email)),
+            MaterialPageRoute(builder: (context) => const GetStaffTasks()),
           );
         },
       },
@@ -152,7 +151,12 @@ class _UsersMainPageState extends State<UsersMainPage> {
         'onPressed': () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AddUserTask(email: email)),
+            MaterialPageRoute(
+              builder:
+                  (context) => AddStaffTask(
+                    email: fetchEmailFromToken(context: context),
+                  ),
+            ),
           );
         },
       },
@@ -167,25 +171,6 @@ class _UsersMainPageState extends State<UsersMainPage> {
               builder: (context) => ChangeUserPassword(email: email),
             ),
           );
-        },
-      },
-      {
-        'title': 'Удалить аккаунт',
-        'backgroundColor': AppColors.userPage,
-        'textColor': Colors.white,
-        'onPressed': () async {
-          bool? confirmed = await showConfirmationDialog(
-            context: context,
-            title: "Confirm",
-            content: "Вы уверены, что хотите удалить этот профиль?",
-            color: AppColors.userPage,
-          );
-
-          if (confirmed) {
-            deleteUserAccount(email: email);
-          } else {
-            return;
-          }
         },
       },
       {

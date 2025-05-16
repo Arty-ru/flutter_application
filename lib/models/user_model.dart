@@ -3,6 +3,7 @@ class UserModel {
   final String name;
   final String email;
   final String? phone;
+  final String? address;
   final List<String>? role;
 
   const UserModel({
@@ -10,6 +11,7 @@ class UserModel {
     required this.name,
     required this.email,
     this.phone,
+    this.address,
     this.role,
   });
 
@@ -19,6 +21,7 @@ class UserModel {
       name: json['userName'] as String,
       email: json['email'] as String,
       phone: json['phone'] as String?,
+      address: json['address'] as String?,
       role: json['role'] != null ? List<String>.from(json['role']) : null,
     );
   }

@@ -30,7 +30,23 @@ class BorderStyles {
           vertical: 16.0,
           horizontal: 10.0,
         ),
-        labelText: 'Select a role',
+        labelText: 'Выберите роль',
+        labelStyle: const TextStyle(color: Colors.green),
+        floatingLabelStyle: const TextStyle(color: Colors.green),
+        border: BorderStyles.border,
+        focusedBorder: BorderStyles.focusedBorder,
+        enabledBorder: BorderStyles.border,
+        errorBorder: BorderStyles.errorBorder,
+        focusedErrorBorder: BorderStyles.focusedErrorBorder,
+      );
+
+  static final InputDecoration roleDropdownButtonFormFieldInputDecoration1 =
+      InputDecoration(
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 16.0,
+          horizontal: 10.0,
+        ),
+        labelText: 'Выберите состояние',
         labelStyle: const TextStyle(color: Colors.green),
         floatingLabelStyle: const TextStyle(color: Colors.green),
         border: BorderStyles.border,

@@ -17,3 +17,18 @@ String fetchEmailFromToken({required BuildContext context}) {
 
   return email;
 }
+
+String fetchIdFromToken({required BuildContext context}) {
+  if (TokenHandler().getToken().isEmpty) {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+      (Route<dynamic> route) => false,
+    );
+  }
+
+  final decodedToken = JwtDecoder.decode(TokenHandler().getToken());
+  String email = decodedToken['id'];
+
+  return email;
+}

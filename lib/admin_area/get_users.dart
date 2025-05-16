@@ -44,7 +44,9 @@ class _GetUsersState extends State<GetUsers> {
         users = jsonData.map((user) => UserModel.fromJson(user)).toList();
       });
     } else {
+      // ignore: prefer_typing_uninitialized_variables
       var errorBody;
+      // ignore: prefer_typing_uninitialized_variables
       var error;
 
       if (result.body.isNotEmpty) {

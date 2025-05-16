@@ -21,6 +21,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
@@ -29,6 +30,7 @@ class _RegisterPageState extends State<RegisterPage> {
     _emailController.dispose();
     _passwordController.dispose();
     _phoneNumberController.dispose();
+    _addressController.dispose();
     super.dispose();
   }
 
@@ -39,6 +41,7 @@ class _RegisterPageState extends State<RegisterPage> {
         password: _passwordController.text,
         email: _emailController.text,
         phone: _phoneNumberController.text,
+        address: _addressController.text,
       );
       var result = await http.post(
         Uri.parse(ApiEndpoints.register),
@@ -100,6 +103,8 @@ class _RegisterPageState extends State<RegisterPage> {
                     phoneNumberField(
                       phoneNumberController: _phoneNumberController,
                     ),
+                    const SizedBox(height: 10),
+                    textField(textController: _addressController),
                     const SizedBox(height: 10),
                     submitButton(
                       context: context,

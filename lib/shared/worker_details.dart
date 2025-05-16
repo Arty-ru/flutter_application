@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/constants/app_colors.dart';
 import 'package:flutter_application/constants/border_styles.dart';
-import 'package:flutter_application/models/user_model.dart';
 import 'package:flutter_application/shared/text_fields.dart';
 
-void userDetails({
+void workerDetails({
   required BuildContext context,
-  required UserModel user,
-  required Color color,
+  required String? workerName,
+  required String? workerPhone,
 }) {
   showDialog(
     context: context,
@@ -17,33 +17,22 @@ void userDetails({
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: 10),
-            const Text("Информация о пользователе"),
+            const Text("Информация о работнике"),
             const SizedBox(height: 10),
-            userDetailsTextField(label: "Id", value: user.id),
-            const SizedBox(height: 10),
-            userDetailsTextField(label: "Имя", value: user.name),
-            const SizedBox(height: 10),
-            userDetailsTextField(label: "Email", value: user.email),
+            userDetailsTextField(
+              label: "Имя",
+              value: workerName ?? 'Неизвестно',
+            ),
             const SizedBox(height: 10),
             userDetailsTextField(
               label: "Телефон",
-              value: user.phone ?? "Не указан",
-            ),
-            const SizedBox(height: 10),
-            userDetailsTextField(
-              label: "Адрес",
-              value: user.address ?? "Не указан",
-            ),
-            const SizedBox(height: 10),
-            userDetailsTextField(
-              label: "Роль",
-              value: user.role?.join(', ') ?? 'Не указана',
+              value: workerPhone ?? "Не указан",
             ),
           ],
         ),
         actions: [
           MaterialButton(
-            color: color,
+            color: AppColors.userPage,
             textColor: Colors.white,
             padding: const EdgeInsets.all(18),
             hoverElevation: 0,
